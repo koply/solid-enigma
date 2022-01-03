@@ -10,7 +10,7 @@ import me.koply.kcommando.integration.impl.jda.listeners.CommandListener;
 import me.koply.kcommando.integration.impl.jda.listeners.SlashListener;
 import me.koply.kcommando.internal.Kogger;
 import me.koply.kcommando.internal.annotations.Option;
-import me.koply.kcommando.internal.annotations.Slash;
+import me.koply.kcommando.internal.annotations.HandleSlash;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -42,7 +42,7 @@ public class JDAIntegration extends Integration {
     }
 
     @Override
-    public void registerSlashCommand(Slash info) {
+    public void registerSlashCommand(HandleSlash info) {
         String name = info.name();
         String desc = info.desc();
         boolean isglobal = info.global();
@@ -53,7 +53,6 @@ public class JDAIntegration extends Integration {
             OptionType type = OptionType.fromKey(options[i].type().value);
             optionDatas[i] = new OptionData(type, options[i].name(), options[i].desc(), options[i].required());
         }
-
         if (isglobal) {
             api.upsertCommand(name, desc).addOptions(optionDatas).queue();
             return;

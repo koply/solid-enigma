@@ -13,12 +13,6 @@ public abstract class Integration implements KIntegration {
         this.selfId = selfId;
     }
 
-    public abstract Class<?> getMessageEventType();
-    public abstract Class<?> getSlashEventType();
-    public abstract Class<?> getButtonEventType();
-
-    // --
-
     // for set the custom guild prefixes
     final ConcurrentMap<Long, Set<String>> customGuildPrefixes = new ConcurrentHashMap<>();
     public final ConcurrentMap<Long, Set<String>> getCustomGuildPrefixes() {

@@ -2,18 +2,16 @@ package me.koply.kcommando;
 
 import me.koply.kcommando.internal.Kogger;
 import me.koply.kcommando.internal.annotations.HandleButton;
-import me.koply.kcommando.internal.annotations.Commando;
+import me.koply.kcommando.internal.annotations.HandleCommand;
 import me.koply.kcommando.internal.annotations.SimilarCallback;
-import me.koply.kcommando.internal.annotations.Slash;
+import me.koply.kcommando.internal.annotations.HandleSlash;
 import me.koply.kcommando.internal.boxes.*;
+import me.koply.kcommando.internal.util.PackageReader;
 import me.koply.kcommando.manager.ButtonManager;
 import me.koply.kcommando.manager.CommandManager;
 import me.koply.kcommando.manager.SlashManager;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -82,7 +80,7 @@ public class KInitializer {
 
     // internal
     private void registerSlashBox(Object instance, AnnotationBox box) {
-        Slash ann = (Slash) box.annotation;
+        HandleSlash ann = (HandleSlash) box.annotation;
         SlashBox slashBox = new SlashBox(instance, box.method, box.clazz, ann);
 
         main.integration.registerSlashCommand(ann);
@@ -91,7 +89,7 @@ public class KInitializer {
 
     // internal
     private void registerCommandBox(Object instance, AnnotationBox box) {
-        Commando ann = (Commando) box.annotation;
+        HandleCommand ann = (HandleCommand) box.annotation;
 
         int type = box.type.value;
         boolean isboolean = type > 3;
@@ -254,8 +252,8 @@ public class KInitializer {
     private AnnotationBox annotationChecks(Method method) {
         BoxType type = null;
 
-        Annotation commando = method.getAnnotation(Commando.class);
-        Annotation slash = method.getAnnotation(Slash.class);
+        Annotation commando = method.getAnnotation(HandleCommand.class);
+        Annotation slash = method.getAnnotation(HandleSlash.class);
         Annotation button = method.getAnnotation(HandleButton.class);
         Annotation sugg = method.getAnnotation(SimilarCallback.class);
 
@@ -328,59 +326,26 @@ public class KInitializer {
         List<String> paths = main.getPackagePaths();
         Set<Class<?>> classes = new HashSet<>();
         for (String path : paths) {
-            classes.addAll(getClassesFromPackage(path));
+            Set<Class<?>> clazzez = getClassesFromPackage(path);
+            if (clazzez != null) classes.addAll(clazzez);
         }
         return classes;
     }
 
     // internal
     private Set<Class<?>> getClassesFromPackage(String path) {
-        Set<Class<?>> set = getAllClassesFromPackage(path);
-
-        // TODO: reflections won't work. Change to native scanner
-        if (KCommando.verbose) {
-            Kogger.info(set.size() + " class found from '" + path + "' package.");
-        }
-        return set;
-    }
-
-    // inspired from MaeveS2/SnowballNebula
-    private Set<Class<?>> getAllClassesFromPackage(String packagePath) {
-        InputStream systemStream = ClassLoader.getSystemClassLoader().getResourceAsStream(packagePath.replaceAll("[.]", "/"));
-        InputStream use = systemStream == null ? getClass().getClassLoader().getResourceAsStream(packagePath.replaceAll("[.]", "/")) : systemStream;
-
-        Set<Class<?>> classSet = new HashSet<>();
-        if (use == null) return classSet;
-
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(use));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.endsWith(".class")) {
-                    Class<?> clazz = getClassFromPackage(line, packagePath);
-                    if (clazz != null) classSet.add(clazz);
-                }
+            Set<Class<?>> set = PackageReader.getAllClassesFromPackage(path);
+            if (KCommando.verbose) {
+                Kogger.info(set.size() + " class found from '" + path + "' package.");
             }
+            return set;
         } catch (IOException ex) {
-            if (KCommando.verbose) {
-                Kogger.warn("An error occur while reading classes from package.");
-            }
+            Kogger.warn("An error occured while reading classes. Stacktrace: ");
+            ex.printStackTrace();
         }
-        return classSet;
-    }
 
-    private Class<?> getClassFromPackage(String className, String packageName) {
-        String clazz = packageName + "."
-                + className.substring(0, className.lastIndexOf('.'));
-        try {
-            return Class.forName(clazz);
-        } catch (ClassNotFoundException e) {
-            if (KCommando.verbose) {
-                Kogger.warn(clazz + " found by reader but not found by JVM. Stacktrace:");
-                e.printStackTrace();
-            }
-            return null;
-        }
+        return null;
     }
 
 }

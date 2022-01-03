@@ -7,12 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Slash {
-
+public @interface HandleCommand {
     String name();
-    String desc() default "";
-    Option[] options();
-    boolean global() default false;
-    long[] guildId() default 0;
-
+    String[] aliases();
+    String description() default "-";
 }

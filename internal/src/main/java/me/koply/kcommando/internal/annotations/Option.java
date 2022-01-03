@@ -13,7 +13,7 @@ public @interface Option {
 
     OptionType type();
     String name();
-    String desc() default "";
+    String desc() default "-";
     boolean required() default false;
 
 }

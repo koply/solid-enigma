@@ -84,10 +84,8 @@ public class CommandHandler {
             else
                 box.method.invoke(box.instance, event, list);
         } catch (InvocationTargetException | IllegalAccessException e) {
-            if (KCommando.verbose) {
-                Kogger.warn("An error occur while calling similar callback. Stacktrace:");
-                e.printStackTrace();
-            }
+            Kogger.warn("An error occur while calling similar callback. Stacktrace:");
+            e.printStackTrace();
         }
     }
 
@@ -109,7 +107,8 @@ public class CommandHandler {
     }
 
     // TODO: maybe add detailed log messages for everything
-    // TODO: move checks to Listener class (CommandListener for JDA)
+    // TODO: ownerOnly, guildOnly, privateOnly, customCooldown
+    // TODO: callbacks for wrong usages (with annotation)
     public boolean process(Parameters p) {
         long authorID = p.userId;
         if (blacklistedUsers.contains(authorID)) return false;
@@ -120,7 +119,8 @@ public class CommandHandler {
 
         String[] cmdArgs = rawCommand.substring(resultPrefix).split(" ");
 
-        Kogger.info(String.format("Command received | User: %s | Guild: %s | Command: %s", p.userName, p.guildName, rawCommand));
+        if (KCommando.verbose)
+            Kogger.info(String.format("Command received | User: %s | Guild: %s | Command: %s", p.userName, p.guildName, rawCommand));
 
         String command = options.useCaseSensitivity ? cmdArgs[0] : cmdArgs[0].toLowerCase(Locale.ROOT);
         CommandBox box = commands.get(command);
@@ -145,10 +145,8 @@ public class CommandHandler {
             default:
                 Kogger.warn("An impossible situation happened.");
         }} catch (InvocationTargetException | IllegalAccessException e) {
-            if (KCommando.verbose) {
-                Kogger.warn("An error occur while processing the command. Stacktrace:");
-                e.printStackTrace();
-            }
+            Kogger.warn("An error occured while handling the command. Stacktrace:");
+            e.printStackTrace();
         }
         return true;
     }

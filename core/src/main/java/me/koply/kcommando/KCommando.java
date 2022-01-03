@@ -1,15 +1,34 @@
 package me.koply.kcommando;
 
 import me.koply.kcommando.integration.Integration;
+import me.koply.kcommando.internal.Kogger;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class KCommando {
 
     public final Integration integration;
+    private final KInitializer initializer;
     public KCommando(Integration integration) {
         this.integration = integration;
+        this.initializer = new KInitializer(this);
+    }
+
+    public KCommando(Integration integration, Class<? extends KInitializer> customInitializer) {
+        KInitializer temp;
+        this.integration = integration;
+        try {
+            Constructor<? extends KInitializer> constructor = customInitializer.getDeclaredConstructor(KCommando.class);
+            temp = constructor.newInstance(this);
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            Kogger.warn("Initializer field cannot set to the custom initializer class. KCommando will use the default KInitializer.");
+            temp = new KInitializer(this);
+        }
+
+        this.initializer = temp;
     }
 
     private final List<String> packagePaths = new ArrayList<>();
@@ -20,13 +39,15 @@ public class KCommando {
     public static boolean verbose = false;
 
     public KCommando build() {
-        KInitializer initializer = new KInitializer(this);
         initializer.build();
         return this;
     }
 
-    public void registerCommand(Object customInstance) {
-
+    public void registerCommand(Object...customInstances) {
+        for (Object customInstance : customInstances) {
+            if (verbose) Kogger.info("Registering a custom instance named as " + customInstance.getClass().getName());
+            initializer.registerClass(customInstance);
+        }
     }
 
     public List<String> getPackagePaths() {

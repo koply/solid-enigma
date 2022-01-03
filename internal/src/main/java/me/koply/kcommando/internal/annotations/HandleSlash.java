@@ -7,8 +7,12 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Commando {
+public @interface HandleSlash {
+
     String name();
-    String[] aliases();
-    String description() default "-";
+    String desc() default "-";
+    Option[] options();
+    boolean global() default false;
+    long[] guildId() default 0;
+
 }

@@ -1,6 +1,5 @@
 package me.koply.kcommando.integration.impl.jda.listeners;
 
-import me.koply.kcommando.KCommando;
 import me.koply.kcommando.handler.CommandHandler;
 import me.koply.kcommando.internal.AsyncCaller;
 import me.koply.kcommando.internal.CronService;
@@ -21,13 +20,15 @@ public class CommandListener extends ListenerAdapter implements AsyncCaller {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
+        if (e.isWebhookMessage()) return;
+        if (!handler.options.readBotMessages && e.getAuthor().isBot()) return;
+
         long authorID = e.getAuthor().getIdLong();
         if (authorID == handler.options.integration.selfId) return;
-        if (!handler.options.readBotMessages && e.getAuthor().isBot()) return;
-        if (e.isWebhookMessage()) return;
 
         long ms = System.currentTimeMillis();
         if (ms - cooldownList.getOrDefault(authorID, 0L) < cooldown) return;
+
         try {
             executorService.submit(() -> {
                 boolean result = handler.process(
@@ -40,10 +41,8 @@ public class CommandListener extends ListenerAdapter implements AsyncCaller {
                 if (result) cooldownList.put(authorID, ms);
             });
         } catch (Exception ex) {
-            if (KCommando.verbose) {
-                Kogger.warn("An error occur while processing MessageReceivedEvent. Stacktrace:");
-                ex.printStackTrace();
-            }
+            Kogger.warn("An error occured while processing a MessageReceivedEvent. Stacktrace:");
+            ex.printStackTrace();
         }
     }
 }
