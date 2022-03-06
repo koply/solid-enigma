@@ -10,6 +10,8 @@ import java.util.List;
 
 public class KCommando {
 
+    public static final String VERSION = "5.0.0";
+
     public final Integration integration;
     private final KInitializer initializer;
     public KCommando(Integration integration) {
@@ -36,7 +38,9 @@ public class KCommando {
     private long cooldown;
     private boolean useCaseSensitivity;
     private boolean readBotMessages;
+    public boolean allowSpacesInPrefix = false;
     public static boolean verbose = false;
+    // TODO: data preservence
 
     public KCommando build() {
         initializer.build();
@@ -97,6 +101,15 @@ public class KCommando {
 
     public KCommando setVerbose(boolean verbose) {
         KCommando.verbose = verbose;
+        return this;
+    }
+
+    public boolean isAllowSpacesInPrefix() {
+        return allowSpacesInPrefix;
+    }
+
+    public KCommando setAllowSpacesInPrefix(boolean allowSpacesInPrefix) {
+        this.allowSpacesInPrefix = allowSpacesInPrefix;
         return this;
     }
 }

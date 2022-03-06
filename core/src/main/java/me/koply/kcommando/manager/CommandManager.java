@@ -15,7 +15,7 @@ public class CommandManager extends Manager {
     public CommandManager(KCommando main) {
         CommandHandler.Options options = new CommandHandler.Options(main.integration,
                 main.getPrefix(), main.getCooldown(),
-                main.isUseCaseSensitivity(), main.isReadBotMessages());
+                main.isUseCaseSensitivity(), main.isReadBotMessages(), main.isAllowSpacesInPrefix());
         this.handler = new CommandHandler(commands, options);
     }
 

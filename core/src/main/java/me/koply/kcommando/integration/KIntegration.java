@@ -17,5 +17,4 @@ public interface KIntegration {
     Class<?> getSlashEventType();
     Class<?> getButtonEventType();
 
-    /* TODO: plugin, data preservence, custom prefix */
 }

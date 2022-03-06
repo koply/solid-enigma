@@ -19,13 +19,15 @@ public class CommandHandler {
         public final long cooldown;
         public final boolean useCaseSensitivity;
         public final boolean readBotMessages;
+        public final boolean isAllowSpacesInPrefix;
 
-        public Options(Integration integration, String prefix, long cooldown, boolean useCaseSensitivity, boolean readBotMessages) {
+        public Options(Integration integration, String prefix, long cooldown, boolean useCaseSensitivity, boolean readBotMessages, boolean isAllowSpacesInPrefix) {
             this.integration = integration;
             this.prefix = prefix;
             this.cooldown = cooldown;
             this.useCaseSensitivity = useCaseSensitivity;
             this.readBotMessages = readBotMessages;
+            this.isAllowSpacesInPrefix = isAllowSpacesInPrefix;
         }
     }
 
@@ -97,7 +99,7 @@ public class CommandHandler {
     protected int checkPrefix(String commandRaw, long guildID) {
         Set<String> prefixes = customPrefixes.get(guildID);
         if (prefixes != null) {
-            for (String prefix : prefixes)
+            for (String prefix : prefixes) // TODO: change this block with Set#contains
                 if (commandRaw.startsWith(prefix))
                     return prefix.length();
         } else if (commandRaw.startsWith(options.prefix)) {
